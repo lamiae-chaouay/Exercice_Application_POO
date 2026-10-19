@@ -1,5 +1,5 @@
 from core.dataset import Dataset
-from utils.metrics import Metrics
+
 
 class Trainer:
     def __init__(self, model):

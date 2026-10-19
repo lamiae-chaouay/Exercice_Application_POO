@@ -5,7 +5,7 @@ class ClinicalPredictor:
     """
 
     def __init__(self, model):
-        self.model = model  # Polymorphisme : accepte tout modèle avec predict()
+        self.model = model
 
     def diagnose(self, patient_data):
         prediction = self.model.predict(patient_data)

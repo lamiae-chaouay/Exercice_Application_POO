@@ -1,5 +1,6 @@
 from utils.preprocessing import DataPreprocessor
 
+
 class Dataset:
     def __init__(self, filepath):
         preprocessor = DataPreprocessor()

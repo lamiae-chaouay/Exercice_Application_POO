@@ -1,6 +1,8 @@
 class Metrics:
     @staticmethod
     def accuracy(y_true, y_pred):
+        if len(y_true) == 0:
+            return 0.0
         correct = sum(1 for t, p in zip(y_true, y_pred) if t == p)
         return correct / len(y_true)
 
