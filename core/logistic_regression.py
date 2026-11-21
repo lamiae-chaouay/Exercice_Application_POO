@@ -1,12 +1,13 @@
 # core/logistic_regression.py
-from core.model import BaseModel
 import math
+
+from core.model import BaseModel
 
 
 class LogisticRegression(BaseModel):
     def __init__(self, learning_rate=0.01, epochs=100):
         self.weights = None
-        self.bias = 0
+        self.bias = 0.0
         self.lr = learning_rate
         self.epochs = epochs
 
@@ -15,9 +16,8 @@ class LogisticRegression(BaseModel):
         # Protection contre l'overflow
         if z >= 0:
             return 1 / (1 + math.exp(-z))
-        else:
-            ez = math.exp(z)
-            return ez / (1 + ez)
+        ez = math.exp(z)
+        return ez / (1 + ez)
 
     def fit(self, X, y):
         """Entraînement du modèle sur les données."""
@@ -30,14 +30,19 @@ class LogisticRegression(BaseModel):
             y = y.values.tolist()
 
         n_samples = len(X)
-        n_features = len(X[0])
+        if n_samples == 0:
+            raise ValueError("❌ Aucune donnée d'entraînement fournie.")
 
+        n_features = len(X[0])
         self.weights = [0.0] * n_features
         self.bias = 0.0
 
-        for epoch in range(self.epochs):
+        # Descente de gradient (SGD)
+        for _ in range(self.epochs):
             for i in range(n_samples):
-                linear_pred = sum(self.weights[j] * X[i][j] for j in range(n_features)) + self.bias
+                linear_pred = sum(
+                    self.weights[j] * X[i][j] for j in range(n_features)
+                ) + self.bias
                 y_pred = self._sigmoid(linear_pred)
                 error = y_pred - y[i]
 
@@ -48,16 +53,21 @@ class LogisticRegression(BaseModel):
         print(f"✅ Modèle entraîné sur {n_samples} échantillons avec {n_features} features.")
 
     def predict(self, patient_data):
-        """Retourne une probabilité d'infection basée sur les symptômes."""
+        """Retourne une probabilité d'infection (entre 0 et 1)."""
+        if self.weights is None:
+            raise RuntimeError("❌ Modèle non entraîné. Appelle fit() d'abord.")
+
         if isinstance(patient_data, dict):
             features = [
                 patient_data.get('age', 0),
                 patient_data.get('temperature', 0),
                 patient_data.get('cough', 0),
-                patient_data.get('fatigue', 0)
+                patient_data.get('fatigue', 0),
             ]
         else:
             features = patient_data
 
-        linear_pred = sum(self.weights[i] * features[i] for i in range(len(features))) + self.bias
+        linear_pred = sum(
+            self.weights[i] * features[i] for i in range(len(features))
+        ) + self.bias
         return self._sigmoid(linear_pred)
